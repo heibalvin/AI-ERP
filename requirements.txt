@@ -1,0 +1,9 @@
+langchain-core
+langchain-community
+langchain-ollama
+langgraph
+langgraph-checkpoint-postgres
+psycopg[binary]
+psycopg2-binary
+python-dotenv
+ddgs
