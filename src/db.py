@@ -3,9 +3,10 @@ from psycopg.rows import dict_row
 from langgraph.checkpoint.postgres import PostgresSaver
 from src.config import POSTGRES_URI
 
-def get_db_connection():
+def get_db_connection(autocommit: bool = False):
     """Returns a psycopg (v3) database connection."""
-    return psycopg.connect(POSTGRES_URI, row_factory=dict_row)
+    conn = psycopg.connect(POSTGRES_URI, row_factory=dict_row, autocommit=autocommit)
+    return conn
 
 def ensure_tables_exist():
     """Creates api.ai_tasks table if it doesn't exist."""
@@ -30,8 +31,8 @@ def get_checkpointer():
     """Initializes and returns the LangGraph PostgresSaver checkpointer using a psycopg v3 connection."""
     ensure_tables_exist()
     
-    # Pass a psycopg v3 connection object directly
-    conn = get_db_connection()
+    # Use autocommit for checkpointer setup (migrations need CREATE INDEX CONCURRENTLY outside transaction)
+    conn = get_db_connection(autocommit=True)
     checkpointer = PostgresSaver(conn)
     checkpointer.setup()
     return checkpointer
